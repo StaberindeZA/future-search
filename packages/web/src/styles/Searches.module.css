@@ -1,0 +1,13 @@
+.tabsContainer {
+  display: flex;
+  list-style: none;
+}
+
+.itemContainer {
+  display: flex;
+  width: 800px;
+}
+
+.item {
+  width: 25%;
+}
