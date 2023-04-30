@@ -1,0 +1,59 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: ID!
+  email: String!
+}
+
+type Search {
+  id: ID!
+  search: String!
+  searchDate: DateTime!
+  status: String!
+  createdAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  users: [User!]!
+  user(id: ID!): User!
+  searches(userId: ID!): [Search!]!
+  search(id: ID!): Search!
+}
+
+type Mutation {
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  removeUser(id: ID!): User!
+  createSearch(createSearchInput: CreateSearchInput!): Search!
+  updateSearch(updateSearchInput: UpdateSearchInput!): Search!
+  removeSearch(id: ID!): Search!
+}
+
+input CreateUserInput {
+  email: String!
+}
+
+input UpdateUserInput {
+  email: String!
+  id: ID!
+}
+
+input CreateSearchInput {
+  search: String!
+  searchDate: DateTime!
+  email: String!
+}
+
+input UpdateSearchInput {
+  search: String
+  searchDate: DateTime
+  email: String
+  id: ID!
+}
