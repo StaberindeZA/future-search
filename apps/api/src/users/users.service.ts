@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { usersMock } from '../db/mock';
+import { PrismaService } from '../db/prisma.service';
 
 @Injectable()
 export class UsersService {
+  constructor(private prisma: PrismaService) {}
   users = usersMock;
 
   create(createUserInput: CreateUserInput) {
@@ -18,30 +20,15 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    return this.users;
-  }
-
   findOne(id: string) {
-    return this.findUserbyId(id);
+    return this.prisma.user.findUniqueOrThrow({ where: { id } });
   }
 
-  update(id: string, updateUserInput: UpdateUserInput) {
-    const user = this.findUserbyId(id);
-
-    if (!user) {
-      throw new Error(`Could not find user for id: ${id}`);
-    }
-
-    const index = this.users.findIndex((user) => user.id === id);
-    const updatedUser = {
-      ...user,
-      ...updateUserInput,
-      updatedAt: new Date().toDateString(),
-    };
-    this.users[index] = updatedUser;
-
-    return updatedUser;
+  async update(id: string, updateUserInput: UpdateUserInput) {
+    return this.prisma.user.update({
+      data: { ...updateUserInput },
+      where: { id },
+    });
   }
 
   remove(id: string) {
