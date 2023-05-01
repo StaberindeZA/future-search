@@ -4,37 +4,25 @@ import SetUser from '../set-user/set-user';
 
 const LOGO_IMAGE = '/random-logo.png';
 
-type FormValues = {
-  term: string;
-  interval: string;
-  intervalCount?: number;
-};
-
-function handleSubmit(
-  event: React.FormEvent<HTMLFormElement>,
-  formValues: FormValues
-) {
+function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
-  console.log(`Add search for term: ${formValues.term}`);
 }
 
 /* eslint-disable-next-line */
 export interface AddSearchProps {}
 
 export function AddSearch(props: AddSearchProps) {
-  const [formValues, setFormValues] = useState<FormValues>({
-    term: '',
-    interval: '',
-    intervalCount: undefined,
-  });
   const [email, setEmail] = useState<string>('');
+  const [searchDate, setSearchDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
 
   return (
     <>
       <Image width={200} height={200} src={LOGO_IMAGE} alt="logo" />
       <form
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-[640px]"
-        onSubmit={(e) => handleSubmit(e, formValues)}
+        onSubmit={(e) => handleSubmit(e)}
       >
         <div className="mb-1">
           <label
@@ -50,7 +38,20 @@ export function AddSearch(props: AddSearchProps) {
             placeholder="Search here..."
           />
         </div>
-        <div className="mb-4 text-right">
+        <div className="flex justify-between mb-4 text-right text-xs">
+          <label htmlFor="start">
+            Search date:
+            <input
+              type="date"
+              id="start"
+              name="trip-start"
+              value={searchDate}
+              onChange={(e) => {
+                setSearchDate(e.target.value);
+              }}
+              min={new Date().toISOString().split('T')[0]}
+            />
+          </label>
           <SetUser email={email} setEmail={setEmail} />
         </div>
         <div className="text-center">
