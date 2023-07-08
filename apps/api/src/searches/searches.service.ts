@@ -4,6 +4,7 @@ import { UpdateSearchInput } from './dto/update-search.input';
 import { FindAllSearchInput } from './dto/find-all-search.input';
 import { PrismaService } from '../db/prisma.service';
 import { User } from '@prisma/client';
+import { FindOneSearchInput } from './dto/find-one-search.input';
 
 @Injectable()
 export class SearchesService {
@@ -26,28 +27,35 @@ export class SearchesService {
       throw new Error('Input email does not match user');
     }
 
-    return {
-      id: user.id,
-      search,
-      searchDate,
-      status: 'NEW',
-      createdAt: user.createdAt,
-    };
+    return this.prisma.search.create({
+      data: {
+        search,
+        searchDate,
+        status: 'NEW',
+        userId: id,
+      },
+    });
   }
 
-  findAll(findAllSearchInput: FindAllSearchInput) {
-    return [];
+  async findAll(findAllSearchInput: FindAllSearchInput) {
+    return this.prisma.search.findMany({
+      where: { userId: findAllSearchInput.userId },
+    });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} search`;
+  async findOne(findOneSearchInput: FindOneSearchInput) {
+    return this.prisma.search.findUniqueOrThrow({
+      where: { id: findOneSearchInput.searchId },
+    });
   }
 
   update(id: string, updateSearchInput: UpdateSearchInput) {
     return `This action updates a #${id} search`;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} search`;
+  async remove(findOneSearchInput: FindOneSearchInput) {
+    return this.prisma.search.delete({
+      where: { id: findOneSearchInput.searchId },
+    });
   }
 }

@@ -23,8 +23,16 @@ scalar DateTime
 
 type Query {
   user(id: ID!): User!
-  searches(userId: ID!): [Search!]!
-  search(id: ID!): Search!
+  searches(findAllSearchInput: FindAllSearchInput!): [Search!]!
+  search(findOneSearchInput: FindOneSearchInput!): Search!
+}
+
+input FindAllSearchInput {
+  userId: ID!
+}
+
+input FindOneSearchInput {
+  searchId: ID!
 }
 
 type Mutation {
@@ -33,7 +41,7 @@ type Mutation {
   removeUser(id: ID!): User!
   createSearch(createSearchInput: CreateSearchInput!): Search!
   updateSearch(updateSearchInput: UpdateSearchInput!): Search!
-  removeSearch(id: ID!): Search!
+  removeSearch(removeSearchInput: FindOneSearchInput!): Search!
 }
 
 input CreateUserInput {
