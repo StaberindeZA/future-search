@@ -12,16 +12,10 @@ Services
 docker-compose up -d
 ```
 
-API
+API + Frontend
 
 ```bash
-npx nx serve api
-```
-
-Frontend
-
-```bash
-npx nx serve future-search
+npx nx run-many -t serve
 ```
 
 ### Seed data
