@@ -1,13 +1,11 @@
 import Head from 'next/head';
 import AddSearch from '../components/add-search/add-search';
 import Searches from '../components/searches/searches';
+import { useState } from 'react';
 
 export function Index() {
-  /*
-   * Replace the elements below with your own.
-   *
-   * Note: The corresponding styles are in the ./index.css file.
-   */
+  const [userId, setUserId] = useState<string | undefined>();
+
   return (
     <>
       <Head>
@@ -17,8 +15,8 @@ export function Index() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex flex-col gap-12 justify-center items-center h-screen">
-        <AddSearch />
-        <Searches />
+        <AddSearch userId={userId} setUserId={setUserId} />
+        <Searches userId={userId} />
       </main>
     </>
   );
