@@ -8,14 +8,26 @@ function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
 }
 
+function incDate(days: number, date: Date = new Date()) {
+  date.setDate(date.getDate() + days);
+  return formatDate(date);
+}
+
+function formatDate(date: Date) {
+  const year = date.toLocaleString('default', { year: 'numeric' });
+  const month = date.toLocaleString('default', { month: '2-digit' });
+  const day = date.toLocaleString('default', { day: '2-digit' });
+  return `${year}-${month}-${day}`;
+}
+
 /* eslint-disable-next-line */
 export interface AddSearchProps {}
 
 export function AddSearch(props: AddSearchProps) {
   const [email, setEmail] = useState<string>('');
-  const [searchDate, setSearchDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
+  const [searchDate, setSearchDate] = useState<string>(incDate(1));
+
+  const searchDisabled = !email || !searchDate;
 
   return (
     <>
@@ -32,10 +44,11 @@ export function AddSearch(props: AddSearchProps) {
             What future search can I schedule for you?
           </label>
           <input
-            className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline disabled:opacity-75"
             id="search"
             type="text"
             placeholder="Search here..."
+            disabled={searchDisabled}
           />
         </div>
         <div className="flex justify-between mb-4 text-right text-xs">
@@ -49,7 +62,7 @@ export function AddSearch(props: AddSearchProps) {
               onChange={(e) => {
                 setSearchDate(e.target.value);
               }}
-              min={new Date().toISOString().split('T')[0]}
+              min={incDate(1)}
             />
           </label>
           <SetUser email={email} setEmail={setEmail} />

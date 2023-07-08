@@ -47,14 +47,16 @@ input UpdateUserInput {
 }
 
 input CreateSearchInput {
+  email: String
+  userId: String
   search: String!
   searchDate: DateTime!
-  email: String!
 }
 
 input UpdateSearchInput {
+  email: String
+  userId: String
   search: String
   searchDate: DateTime
-  email: String
   id: ID!
 }
