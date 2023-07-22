@@ -68,7 +68,7 @@ export function AddSearch(props: AddSearchProps) {
       <Image width={200} height={200} src={LOGO_IMAGE} alt="logo" />
       <SetUser userId={userId} setUserId={setUserId} />
       <form
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-[640px]"
+        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 md:w-[640px] w-5/6"
         onSubmit={(e) => {
           e.preventDefault();
           const form = e.target as HTMLFormElement;
