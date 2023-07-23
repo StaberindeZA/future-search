@@ -1,6 +1,4 @@
-import * as Popover from '@radix-ui/react-popover';
 import * as Accordion from '@radix-ui/react-accordion';
-import { Cross2Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { Dispatch, ReactNode, SetStateAction, useRef, useState } from 'react';
 
@@ -63,25 +61,6 @@ export interface SetUserPopoverProps {
   children: ReactNode;
 }
 
-const SetUserPopover = ({ triggerText, children }: SetUserPopoverProps) => (
-  <Popover.Root>
-    <Popover.Trigger className="underline">{triggerText}</Popover.Trigger>
-    <Popover.Portal>
-      <Popover.Content
-        className="border bg-white p-4"
-        side="bottom"
-        sideOffset={5}
-      >
-        {children}
-        <Popover.Close className="h-6 w-6 inline-flex justify-center items-center absolute top-2 right-2">
-          <Cross2Icon />
-        </Popover.Close>
-        <Popover.Arrow />
-      </Popover.Content>
-    </Popover.Portal>
-  </Popover.Root>
-);
-
 /* eslint-disable-next-line */
 export interface SetUserProps {
   userId?: string;
@@ -123,7 +102,6 @@ export function SetUser(props: SetUserProps) {
     ? `1. Search results will be sent to: ${userEmail}`
     : `1. Start with your email`;
   return (
-    // <SetUserPopover triggerText={triggerText}>
     <SetUserAccordian
       value={value}
       setValue={setValue}
@@ -158,7 +136,6 @@ export function SetUser(props: SetUserProps) {
         </div>
       </form>
     </SetUserAccordian>
-    // </SetUserPopover>
   );
 }
 
