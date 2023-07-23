@@ -1,7 +1,8 @@
 import * as Popover from '@radix-ui/react-popover';
-import { Cross2Icon } from '@radix-ui/react-icons';
+import * as Accordion from '@radix-ui/react-accordion';
+import { Cross2Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { useRef } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 
 const CREATE_USER = gql`
   mutation CreateUser($email: String!) {
@@ -22,6 +23,68 @@ const GET_USER = gql`
     }
   }
 `;
+
+export interface SetUserAccordianProps {
+  triggerText: string;
+  children: ReactNode;
+}
+
+const SetUserAccordian = ({ triggerText, children }: SetUserAccordianProps) => {
+  const [dialogState, setDialogState] = useState('item-1');
+  return (
+    <Accordion.Root
+      className="AccordionRoot"
+      type="single"
+      collapsible
+      value={dialogState}
+      onValueChange={setDialogState}
+    >
+      <Accordion.Item className="AccordionItem" value="item-1">
+        <Accordion.Header>
+          <Accordion.Trigger>
+            {triggerText}
+            <ChevronDownIcon aria-hidden />
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Content>
+          <div>{children}</div>
+          <button
+            type="button"
+            onClick={() => {
+              setDialogState('');
+            }}
+          >
+            Click to close
+          </button>
+        </Accordion.Content>
+      </Accordion.Item>
+    </Accordion.Root>
+  );
+};
+
+export interface SetUserPopoverProps {
+  triggerText: string;
+  children: ReactNode;
+}
+
+const SetUserPopover = ({ triggerText, children }: SetUserPopoverProps) => (
+  <Popover.Root>
+    <Popover.Trigger className="underline">{triggerText}</Popover.Trigger>
+    <Popover.Portal>
+      <Popover.Content
+        className="border bg-white p-4"
+        side="bottom"
+        sideOffset={5}
+      >
+        {children}
+        <Popover.Close className="h-6 w-6 inline-flex justify-center items-center absolute top-2 right-2">
+          <Cross2Icon />
+        </Popover.Close>
+        <Popover.Arrow />
+      </Popover.Content>
+    </Popover.Portal>
+  </Popover.Root>
+);
 
 /* eslint-disable-next-line */
 export interface SetUserProps {
@@ -62,55 +125,44 @@ export function SetUser(props: SetUserProps) {
     ? `Search results will be sent to: ${userEmail}`
     : `We will need your email before you start!`;
   return (
-    <Popover.Root>
-      <Popover.Trigger className="underline">{triggerText}</Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          className="border bg-white p-4"
-          side="bottom"
-          sideOffset={5}
-        >
-          <form
-            className="p-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitEmail();
-            }}
+    // <SetUserPopover triggerText={triggerText}>
+    <SetUserAccordian triggerText={triggerText}>
+      <form
+        className="p-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          submitEmail();
+        }}
+      >
+        <div className="mb-4">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="search"
           >
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="search"
-              >
-                Where do you need your future reminder sent?
-              </label>
-              <input
-                className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="search"
-                type="email"
-                placeholder="Email"
-                defaultValue={''}
-                ref={emailRef}
-              />
-            </div>
-            <div className="text-center">
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="button"
-                onClick={submitEmail}
-                disabled={loading}
-              >
-                {loading ? <>Setting email...</> : <>Set email</>}
-              </button>
-            </div>
-          </form>
-          <Popover.Close className="h-6 w-6 inline-flex justify-center items-center absolute top-2 right-2">
-            <Cross2Icon />
-          </Popover.Close>
-          <Popover.Arrow />
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+            Where do you need your future reminder sent?
+          </label>
+          <input
+            className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="search"
+            type="email"
+            placeholder="Email"
+            defaultValue={''}
+            ref={emailRef}
+          />
+        </div>
+        <div className="text-center">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            type="button"
+            onClick={submitEmail}
+            disabled={loading}
+          >
+            {loading ? <>Setting email...</> : <>Set email</>}
+          </button>
+        </div>
+      </form>
+    </SetUserAccordian>
+    // </SetUserPopover>
   );
 }
 
