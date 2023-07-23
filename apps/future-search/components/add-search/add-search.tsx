@@ -10,7 +10,14 @@ function parseFormData(form: HTMLFormElement) {
     searchDate: '',
   };
   const formData = new FormData(form);
-  formData.forEach((value, key) => (parsedData[key] = value));
+  console.log('Form Data', formData);
+  formData.forEach((value, key) => {
+    if (key === 'searchDate') {
+      parsedData[key] = addCurrentTimeToDate(value as string);
+    } else {
+      parsedData[key] = value;
+    }
+  });
   return parsedData;
 }
 
@@ -24,6 +31,17 @@ function formatDate(date: Date) {
   const month = date.toLocaleString('default', { month: '2-digit' });
   const day = date.toLocaleString('default', { day: '2-digit' });
   return `${year}-${month}-${day}`;
+}
+
+// TODO - There has to be a better way than this
+function addCurrentTimeToDate(dateString: string) {
+  const dateWithTime = new Date();
+  dateWithTime.setFullYear(
+    parseInt(dateString.slice(0, 4)),
+    parseInt(dateString.slice(5, 7)) - 1,
+    parseInt(dateString.slice(8, 10))
+  );
+  return dateWithTime.toISOString();
 }
 
 const CREATE_SEARCH = gql`
@@ -68,7 +86,7 @@ export function AddSearch(props: AddSearchProps) {
       <Image width={200} height={200} src={LOGO_IMAGE} alt="logo" />
       <SetUser userId={userId} setUserId={setUserId} />
       <form
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 md:w-[640px] w-5/6"
+        className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 md:w-[640px] w-5/6"
         onSubmit={(e) => {
           e.preventDefault();
           const form = e.target as HTMLFormElement;
@@ -82,7 +100,23 @@ export function AddSearch(props: AddSearchProps) {
           form.reset();
         }}
       >
-        <div className="mb-1">
+        <div>
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="start"
+          >
+            Search date:
+          </label>
+          <input
+            type="date"
+            id="start"
+            name="searchDate"
+            defaultValue={initialDate}
+            min={incDate(1)}
+            disabled={formItemsDisabled}
+          />
+        </div>
+        <div>
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="search"
@@ -98,19 +132,6 @@ export function AddSearch(props: AddSearchProps) {
             disabled={formItemsDisabled}
             required
           />
-        </div>
-        <div className="flex justify-between mb-4 text-right text-xs">
-          <label htmlFor="start">
-            Search date:
-            <input
-              type="date"
-              id="start"
-              name="searchDate"
-              defaultValue={initialDate}
-              min={incDate(1)}
-              disabled={formItemsDisabled}
-            />
-          </label>
         </div>
         <div className="text-center">
           <button

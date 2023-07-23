@@ -2,7 +2,7 @@ import * as Popover from '@radix-ui/react-popover';
 import * as Accordion from '@radix-ui/react-accordion';
 import { Cross2Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { ReactNode, useRef, useState } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useRef, useState } from 'react';
 
 const CREATE_USER = gql`
   mutation CreateUser($email: String!) {
@@ -25,37 +25,33 @@ const GET_USER = gql`
 `;
 
 export interface SetUserAccordianProps {
+  value: string;
+  setValue: Dispatch<SetStateAction<string>>;
   triggerText: string;
   children: ReactNode;
 }
 
-const SetUserAccordian = ({ triggerText, children }: SetUserAccordianProps) => {
-  const [dialogState, setDialogState] = useState('item-1');
+const SetUserAccordian = ({
+  value,
+  setValue,
+  triggerText,
+  children,
+}: SetUserAccordianProps) => {
   return (
     <Accordion.Root
-      className="AccordionRoot"
       type="single"
       collapsible
-      value={dialogState}
-      onValueChange={setDialogState}
+      value={value}
+      onValueChange={setValue}
     >
-      <Accordion.Item className="AccordionItem" value="item-1">
-        <Accordion.Header>
-          <Accordion.Trigger>
+      <Accordion.Item value="item-1">
+        <Accordion.Header className="text-center">
+          <Accordion.Trigger className="underline">
             {triggerText}
-            <ChevronDownIcon aria-hidden />
           </Accordion.Trigger>
         </Accordion.Header>
-        <Accordion.Content>
-          <div>{children}</div>
-          <button
-            type="button"
-            onClick={() => {
-              setDialogState('');
-            }}
-          >
-            Click to close
-          </button>
+        <Accordion.Content className="data-[state=open]:animate-[slideDown_300ms_ease-out] data-[state=closed]:animate-[slideUp_150ms_ease-out]">
+          {children}
         </Accordion.Content>
       </Accordion.Item>
     </Accordion.Root>
@@ -95,6 +91,7 @@ export interface SetUserProps {
 export function SetUser(props: SetUserProps) {
   const { userId, setUserId } = props;
   const emailRef = useRef<HTMLInputElement>();
+  const [value, setValue] = useState('item-1');
   const [createUser, { loading, error }] = useMutation(CREATE_USER);
   const {
     loading: getUserLoading,
@@ -110,6 +107,7 @@ export function SetUser(props: SetUserProps) {
     try {
       const result = await createUser({ variables: { email } });
       setUserId(result.data.createUser.id);
+      setValue('');
     } catch (error) {
       console.log('Oh no thats bad!', error);
     }
@@ -122,25 +120,23 @@ export function SetUser(props: SetUserProps) {
   const userEmail = getUserData?.user?.email;
 
   const triggerText = userEmail
-    ? `Search results will be sent to: ${userEmail}`
-    : `We will need your email before you start!`;
+    ? `1. Search results will be sent to: ${userEmail}`
+    : `1. Start with your email`;
   return (
     // <SetUserPopover triggerText={triggerText}>
-    <SetUserAccordian triggerText={triggerText}>
+    <SetUserAccordian
+      value={value}
+      setValue={setValue}
+      triggerText={triggerText}
+    >
       <form
-        className="p-4"
+        className="bg-white shadow-md rounded px-8 pt-6 pb-8 sm:w-[420px]"
         onSubmit={(e) => {
           e.preventDefault();
           submitEmail();
         }}
       >
         <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="search"
-          >
-            Where do you need your future reminder sent?
-          </label>
           <input
             className="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="search"
