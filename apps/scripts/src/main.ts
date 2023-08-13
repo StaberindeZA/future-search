@@ -1,16 +1,23 @@
 import { Command, Option } from 'commander';
 import { PrismaClient, SearchStatus } from '@prisma/client';
-import { sendSearchReminderEmail } from '@future-search/email';
+import { EmailService } from '@future-search/email';
+import Logger = require('bunyan');
 
-async function email_cron_fetch({
-  status,
-  startDate,
-  endDate,
-}: {
+const prisma = new PrismaClient();
+const program = new Command();
+const emailService = new EmailService();
+const log = Logger.createLogger({ name: 'email_cron_Fetch' });
+
+async function email_cron_fetch(data: {
   status: SearchStatus;
   startDate?: string;
   endDate?: string;
+  dryRun: boolean;
 }) {
+  const { status, startDate, endDate, dryRun } = data;
+
+  log.info({ message: 'Start script', data });
+
   // Query DB, using prisma, with date range and transaction types
   const searches = await prisma.search.findMany({
     where: {
@@ -32,15 +39,14 @@ async function email_cron_fetch({
     },
   });
 
-  // searches.forEach((search) => {
-  //   const { search: searchString, searchDate, status, createdAt } = search;
-  //   console.log({ searchString, status, searchDate, createdAt });
-  // });
-  console.log(searches[0]);
-  // Send emails
+  log.info({
+    message: searches.length ? 'Searches found' : 'No searches found',
+    numberOfSearches: searches.length,
+  });
 
+  // Send emails
   const emailsToSend = searches.map((search) => {
-    return sendSearchReminderEmail({
+    return emailService.sendSearchReminderEmail({
       email: search.user.email,
       searchTerm: search.search,
       searchDate: search.searchDate,
@@ -48,15 +54,14 @@ async function email_cron_fetch({
     });
   });
 
-  const result = Promise.allSettled(emailsToSend);
+  if (!dryRun) {
+    const result = Promise.allSettled(emailsToSend);
+  }
 
   // Update searches with 'SUCCESS' or 'ERROR'
 
   return 0;
 }
-
-const prisma = new PrismaClient();
-const program = new Command();
 
 program
   .addOption(
@@ -66,12 +71,18 @@ program
   )
   .addOption(
     new Option(
-      '-d, --startDate [datetime]',
+      '-sd, --startDate [datetime]',
       'Find searches after the start date'
     )
   )
   .addOption(
-    new Option('-e, --endDate [datetime]', 'Find searches before the end date')
+    new Option('-ed, --endDate [datetime]', 'Find searches before the end date')
+  )
+  .addOption(
+    new Option(
+      'd, --dryRun [boolean]',
+      'Execute script as dry run. Do not send email or change search status.'
+    ).default(true)
   );
 
 program.parse();
@@ -82,13 +93,19 @@ email_cron_fetch({
   status: options['status'],
   startDate: options['startDate'],
   endDate: options['endDate'],
+  dryRun: options['dryRun'],
 })
   .catch(async (err) => {
+    log.error({
+      message: 'Script failed with error',
+      error: err.toString(),
+    });
     console.error(err);
     await prisma.$disconnect();
     process.exit(1);
   })
   .then(async (result) => {
+    log.info({ message: 'Script successfully completed' });
     await prisma.$disconnect();
     process.exit(result);
   });
