@@ -2,9 +2,7 @@ import { Command, Option } from 'commander';
 import { PrismaClient, SearchStatus } from '@prisma/client';
 import { sendSearchReminderEmail } from '@future-search/email';
 
-const prisma = new PrismaClient();
-
-export async function email_cron_fetch({
+async function email_cron_fetch({
   status,
   startDate,
   endDate,
@@ -57,6 +55,7 @@ export async function email_cron_fetch({
   return 0;
 }
 
+const prisma = new PrismaClient();
 const program = new Command();
 
 program
@@ -79,19 +78,17 @@ program.parse();
 
 const options = program.opts();
 
-if (require.main === module) {
-  email_cron_fetch({
-    status: options['status'],
-    startDate: options['startDate'],
-    endDate: options['endDate'],
+email_cron_fetch({
+  status: options['status'],
+  startDate: options['startDate'],
+  endDate: options['endDate'],
+})
+  .catch(async (err) => {
+    console.error(err);
+    await prisma.$disconnect();
+    process.exit(1);
   })
-    .catch(async (err) => {
-      console.error(err);
-      await prisma.$disconnect();
-      process.exit(1);
-    })
-    .then(async (result) => {
-      await prisma.$disconnect();
-      process.exit(result);
-    });
-}
+  .then(async (result) => {
+    await prisma.$disconnect();
+    process.exit(result);
+  });

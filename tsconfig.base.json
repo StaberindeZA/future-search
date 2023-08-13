@@ -16,7 +16,6 @@
     "baseUrl": ".",
     "paths": {
       "@future-search/email": ["libs/email/src/index.ts"],
-      "@future-search/scripts": ["libs/scripts/src/index.ts"],
       "@future-search/shared": ["libs/shared/src/index.ts"]
     }
   },
