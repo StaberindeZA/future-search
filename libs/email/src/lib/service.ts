@@ -17,15 +17,18 @@ export class EmailService {
     searchCreatedDate: Date;
   }) {
     const { email, searchTerm, searchDate, searchCreatedDate } = data;
-    // Replace this.transporter with MailManager
     this.log.debug({ name: 'sendSearchReminderEmail', data });
-    const info = await this.emailManager.sendMail({
-      from: '"Temp Test" <temptest@example.com>',
-      to: email,
-      subject: 'Your past You searched for something',
-      text: searchTerm,
-      html: `<b><h1>Your Search</h1><p>Search Term: ${searchTerm}</p><p>Search created on: ${searchCreatedDate.toISOString()}</p</b>`,
-    });
-    return info;
+    try {
+      const info = await this.emailManager.sendMail({
+        from: '"Temp Test" <temptest@example.com>',
+        to: email,
+        subject: 'Your past You searched for something',
+        text: searchTerm,
+        html: `<b><h1>Your Search</h1><p>Search Term: ${searchTerm}</p><p>Search created on: ${searchCreatedDate.toISOString()}</p</b>`,
+      });
+      return info;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

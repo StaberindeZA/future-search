@@ -16,7 +16,7 @@ async function email_cron_fetch(data: {
 }) {
   const { status, startDate, endDate, dryRun } = data;
 
-  log.info({ message: 'Start script', data });
+  log.info({ data }, 'Start script');
 
   // Query DB, using prisma, with date range and transaction types
   const searches = await prisma.search.findMany({
@@ -39,10 +39,12 @@ async function email_cron_fetch(data: {
     },
   });
 
-  log.info({
-    message: searches.length ? 'Searches found' : 'No searches found',
-    numberOfSearches: searches.length,
-  });
+  log.info(
+    {
+      numberOfSearches: searches.length,
+    },
+    searches.length ? 'Searches found' : 'No searches found'
+  );
 
   // Send emails
   const emailsToSend = searches.map((search) => {
@@ -96,8 +98,7 @@ email_cron_fetch({
   dryRun: options['dryRun'],
 })
   .catch(async (err) => {
-    log.error({
-      message: 'Script failed with error',
+    log.error('Script failed with error', {
       error: err.toString(),
     });
     console.error(err);
@@ -105,7 +106,7 @@ email_cron_fetch({
     process.exit(1);
   })
   .then(async (result) => {
-    log.info({ message: 'Script successfully completed' });
+    log.info('Script successfully completed');
     await prisma.$disconnect();
     process.exit(result);
   });
