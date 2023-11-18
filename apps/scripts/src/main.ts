@@ -6,7 +6,7 @@ import Logger = require('bunyan');
 const prisma = new PrismaClient();
 const program = new Command();
 const emailService = new EmailService();
-const log = Logger.createLogger({ name: 'email_cron_Fetch' });
+const log = Logger.createLogger({ name: 'email_cron_fetch' });
 
 async function email_cron_fetch(data: {
   status: SearchStatus;
@@ -46,18 +46,19 @@ async function email_cron_fetch(data: {
     searches.length ? 'Searches found' : 'No searches found'
   );
 
-  // Send emails
-  const emailsToSend = searches.map((search) => {
-    return emailService.sendSearchReminderEmail({
-      email: search.user.email,
-      searchTerm: search.search,
-      searchDate: search.searchDate,
-      searchCreatedDate: search.createdAt,
-    });
-  });
 
-  if (!dryRun) {
-    const result = Promise.allSettled(emailsToSend);
+  if (dryRun) {
+    // TODO - Add handler Class that calls email/push notification/etc.
+    // Send emails
+    const emailsToSend = searches.map((search) => {
+      return new Promise((resolve) => emailService.sendSearchReminderEmail({
+        email: search.user.email,
+        searchTerm: search.search,
+        searchDate: search.searchDate,
+        searchCreatedDate: search.createdAt,
+      }).then((info) => resolve(info)))
+    });
+    await Promise.allSettled(emailsToSend);
   }
 
   // Update searches with 'SUCCESS' or 'ERROR'
@@ -67,9 +68,7 @@ async function email_cron_fetch(data: {
 
 program
   .addOption(
-    new Option('-s, --status <status>', 'Fetch searches with this status')
-      .choices(['NEW', 'PROCESSING', 'SUCCESS'])
-      .default('NEW')
+    new Option('-s, --status <status>', 'Fetch searches with this status').choices(['NEW', 'PROCESSING', 'SUCCESS']).default('NEW')
   )
   .addOption(
     new Option(

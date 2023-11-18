@@ -6,7 +6,7 @@ export class EmailService {
   log: Logger;
 
   constructor(log?: Logger) {
-    this.log = log || Logger.createLogger({ name: 'MailService' });
+    this.log = log || Logger.createLogger({ name: 'MailService', level: process.env['LOGGER_LOG_LEVEL'] as Logger.LogLevel || 'info' });
     this.emailManager = new EmailManager();
   }
 
@@ -16,7 +16,7 @@ export class EmailService {
     searchDate: Date;
     searchCreatedDate: Date;
   }) {
-    const { email, searchTerm, searchDate, searchCreatedDate } = data;
+    const { email, searchTerm, searchCreatedDate } = data;
     this.log.debug({ name: 'sendSearchReminderEmail', data });
     try {
       const info = await this.emailManager.sendMail({
@@ -28,7 +28,7 @@ export class EmailService {
       });
       return info;
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }

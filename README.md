@@ -6,7 +6,7 @@
 
 ### Startup
 
-Services
+Infrastructure
 
 ```bash
 docker-compose up -d
@@ -16,6 +16,12 @@ API + Frontend
 
 ```bash
 npx nx run-many -t serve
+```
+
+Local email (optional)
+
+```bash
+maildev
 ```
 
 ### Seed data
