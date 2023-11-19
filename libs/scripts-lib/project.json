@@ -1,0 +1,56 @@
+{
+  "name": "scripts-lib",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/scripts-lib/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/scripts-lib",
+        "tsConfig": "libs/scripts-lib/tsconfig.lib.json",
+        "packageJson": "libs/scripts-lib/package.json",
+        "main": "libs/scripts-lib/src/index.ts",
+        "assets": ["libs/scripts-lib/*.md"]
+      }
+    },
+    "alias": {
+      "command": "tsc-alias -p libs/scripts-lib/tsconfig.json --outDir=dist/",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/scripts-lib/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/scripts-lib/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "jobs": {
+      "executor": "nx:run-commands",
+      "configurations": {
+        "notify": {
+          "command": "TS_NODE_PROJECT=libs/scripts-lib/tsconfig.json node -r esbuild-register libs/scripts-lib/src/lib/notification_cron.ts"
+        }
+      }
+    },
+    "notify-2": {
+      "command": "TS_NODE_PROJECT=libs/scripts-lib/tsconfig.json node -r esbuild-register libs/scripts-lib/src/lib/notification_cron.ts"
+    }
+  },
+  "tags": []
+}
