@@ -128,6 +128,7 @@ export function AddSearch(props: AddSearchProps) {
             name="searchTime"
             value={time}
             onChange={(e) => setTime(e.target.value) }
+            disabled={formItemsDisabled}
           />
         </div>
         <div>
