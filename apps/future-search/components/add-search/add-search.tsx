@@ -1,24 +1,19 @@
 import { useMutation, gql } from '@apollo/client';
 import Image from 'next/image';
+import { useState } from 'react';
 import SetUser from '../set-user/set-user';
 
 const LOGO_IMAGE = '/random-logo.png';
 
 function parseFormData(form: HTMLFormElement) {
-  const parsedData = {
-    search: '',
-    searchDate: '',
-  };
   const formData = new FormData(form);
-  console.log('Form Data', formData);
-  formData.forEach((value, key) => {
-    if (key === 'searchDate') {
-      parsedData[key] = addCurrentTimeToDate(value as string);
-    } else {
-      parsedData[key] = value;
-    }
-  });
-  return parsedData;
+  const search = formData.get('search').toString();
+  const searchDate = formData.get('searchDate').toString();
+  const searchTime = formData.get('searchTime').toString();
+  return {
+    search,
+    searchDate: mergeDateTime(searchDate, searchTime)
+  };
 }
 
 function incDate(days: number, date: Date = new Date()) {
@@ -40,6 +35,17 @@ function addCurrentTimeToDate(dateString: string) {
     parseInt(dateString.slice(0, 4)),
     parseInt(dateString.slice(5, 7)) - 1,
     parseInt(dateString.slice(8, 10))
+  );
+  return dateWithTime.toISOString();
+}
+
+function mergeDateTime(dateString: string, time: string) {
+  const dateWithTime = new Date(
+    parseInt(dateString.slice(0, 4)),
+    parseInt(dateString.slice(5, 7)) - 1,
+    parseInt(dateString.slice(8, 10)),
+    parseInt(time.slice(0,2)),
+    parseInt(time.slice(3,5))
   );
   return dateWithTime.toISOString();
 }
@@ -77,6 +83,7 @@ export function AddSearch(props: AddSearchProps) {
   const [createSearch, { loading, error }] = useMutation(CREATE_SEARCH, {
     refetchQueries: ['Searches'],
   });
+  const [time, setTime] = useState("12:00");
 
   const formItemsDisabled = !userId || loading;
   const initialDate = incDate(1);
@@ -114,6 +121,13 @@ export function AddSearch(props: AddSearchProps) {
             defaultValue={initialDate}
             min={incDate(1)}
             disabled={formItemsDisabled}
+          />
+          <input
+            type="time"
+            id="searchTime"
+            name="searchTime"
+            value={time}
+            onChange={(e) => setTime(e.target.value) }
           />
         </div>
         <div>
