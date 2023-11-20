@@ -19,7 +19,6 @@ export class EmailService {
     const { email, searchTerm, searchCreatedDate } = data;
     this.log.debug({ name: 'sendSearchReminderEmail', data });
     const result = await this.emailManager.sendMail({
-      from: '"Temp Test" <temptest@example.com>',
       to: email,
       subject: 'Your past You searched for something',
       text: searchTerm,

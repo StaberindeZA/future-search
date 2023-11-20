@@ -19,10 +19,12 @@ function getNodemailerTransport() {
 export class EmailManager {
   private transporter: Transporter;
   private log: Logger;
+  private fromMailAddress: string;
 
   constructor() {
     this.transporter = createTransport(getNodemailerTransport());
     this.log = Logger.createLogger({ name: 'MailManager', level: process.env['LOGGER_LOG_LEVEL'] as Logger.LogLevel || 'info' });
+    this.fromMailAddress = process.env['MAILER_SENDER_EMAIL'] || '';
   }
 
   checkEmailAllowList(email: string) {
@@ -34,11 +36,14 @@ export class EmailManager {
 
   async sendMail(data: SendMailData) {
     if (this.checkEmailAllowList(data.to)) {
-      this.log.debug({ to: data.to, from: data.from }, 'sendEmail.allowed');
-      return this.transporter.sendMail(data);
+      this.log.debug({ to: data.to }, 'sendEmail.allowed');
+      return this.transporter.sendMail({
+        ...data,
+        from: this.fromMailAddress
+      });
     } else {
       this.log.debug(
-        { to: data.to, from: data.from },
+        { to: data.to },
         'sendEmail.notOnAllowList'
       );
       return false;

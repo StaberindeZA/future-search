@@ -28,17 +28,6 @@ function formatDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-// TODO - There has to be a better way than this
-function addCurrentTimeToDate(dateString: string) {
-  const dateWithTime = new Date();
-  dateWithTime.setFullYear(
-    parseInt(dateString.slice(0, 4)),
-    parseInt(dateString.slice(5, 7)) - 1,
-    parseInt(dateString.slice(8, 10))
-  );
-  return dateWithTime.toISOString();
-}
-
 function mergeDateTime(dateString: string, time: string) {
   const dateWithTime = new Date(
     parseInt(dateString.slice(0, 4)),
