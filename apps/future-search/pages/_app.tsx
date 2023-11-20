@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { ApolloProvider } from '@apollo/client';
 import client from '../apollo-client';
 import './styles.css';
+import { SessionProvider } from 'next-auth/react';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
@@ -12,7 +13,9 @@ function CustomApp({ Component, pageProps }: AppProps) {
       </Head>
       <main className="app">
         <ApolloProvider client={client}>
-          <Component {...pageProps} />
+          <SessionProvider session={pageProps.session}>
+            <Component {...pageProps} />
+          </SessionProvider>
         </ApolloProvider>
       </main>
     </>

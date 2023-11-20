@@ -8,7 +8,7 @@ import { FindOneSearchInput } from './dto/find-one-search.input';
 
 @Injectable()
 export class SearchesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createSearchInput: CreateSearchInput) {
     const { userId: id, email, search, searchDate } = createSearchInput;
@@ -32,14 +32,24 @@ export class SearchesService {
         search,
         searchDate,
         status: 'NEW',
-        userId: id,
+        userId: user.id,
       },
     });
   }
 
   async findAll(findAllSearchInput: FindAllSearchInput) {
+    // Temporary solution
+    // TODO make one DB call
+    let userId: string;
+    if (!userId) {
+      const user = await this.prisma.user.findUniqueOrThrow({ where: { email: findAllSearchInput.email } });
+      userId = user.id;
+    } else {
+      userId = findAllSearchInput.userId;
+    }
+
     return this.prisma.search.findMany({
-      where: { userId: findAllSearchInput.userId },
+      where: { userId },
     });
   }
 

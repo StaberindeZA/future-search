@@ -1,7 +1,9 @@
 import { useMutation, gql } from '@apollo/client';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useState } from 'react';
 import SetUser from '../set-user/set-user';
+import User from '../user/user';
 
 const LOGO_IMAGE = '/random-logo.png';
 
@@ -41,13 +43,15 @@ function mergeDateTime(dateString: string, time: string) {
 
 const CREATE_SEARCH = gql`
   mutation CreateSearch(
-    $userId: String!
+    $email: String
+    $userId: String
     $search: String!
     $searchDate: DateTime!
   ) {
     createSearch(
       createSearchInput: {
         userId: $userId
+        email: $email
         search: $search
         searchDate: $searchDate
       }
@@ -68,19 +72,22 @@ export interface AddSearchProps {
 }
 
 export function AddSearch(props: AddSearchProps) {
-  const { userId, setUserId } = props;
+  //const { userId, setUserId } = props;
+  const { data: session } = useSession();
+  const userEmail = session?.user?.email;
   const [createSearch, { loading, error }] = useMutation(CREATE_SEARCH, {
     refetchQueries: ['Searches'],
   });
   const [time, setTime] = useState("12:00");
 
-  const formItemsDisabled = !userId || loading;
+  const formItemsDisabled = !userEmail || loading;
   const initialDate = incDate(1);
 
   return (
     <>
       <Image width={200} height={200} src={LOGO_IMAGE} alt="logo" />
-      <SetUser userId={userId} setUserId={setUserId} />
+      {/*<SetUser userId={userId} setUserId={setUserId} />*/}
+      <User />
       <form
         className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 md:w-[640px] w-5/6"
         onSubmit={(e) => {
@@ -89,7 +96,7 @@ export function AddSearch(props: AddSearchProps) {
           const data = parseFormData(form);
           createSearch({
             variables: {
-              userId,
+              email: userEmail,
               ...data,
             },
           });

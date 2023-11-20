@@ -28,7 +28,8 @@ type Query {
 }
 
 input FindAllSearchInput {
-  userId: ID!
+  email: String
+  userId: String
 }
 
 input FindOneSearchInput {

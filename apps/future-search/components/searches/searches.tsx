@@ -1,4 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
+import { useSession } from 'next-auth/react';
 
 const GET_USER_SEARCHES = gql`
   query Searches($findAllSearchInput: FindAllSearchInput!) {
@@ -18,10 +19,12 @@ export interface SearchesProps {
 }
 
 export function Searches(props: SearchesProps) {
-  const { userId } = props;
+  //const { userId } = props;
+  const { data: session } = useSession();
+  const email = session?.user?.email;
   const { loading, error, data } = useQuery(GET_USER_SEARCHES, {
-    variables: { findAllSearchInput: { userId } },
-    skip: !userId,
+    variables: { findAllSearchInput: { email } },
+    skip: !email,
   });
 
   if (loading) {
