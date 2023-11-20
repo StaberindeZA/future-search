@@ -38,18 +38,10 @@ export class SearchesService {
   }
 
   async findAll(findAllSearchInput: FindAllSearchInput) {
-    // Temporary solution
-    // TODO make one DB call
-    let userId: string;
-    if (!userId) {
-      const user = await this.prisma.user.findUniqueOrThrow({ where: { email: findAllSearchInput.email } });
-      userId = user.id;
-    } else {
-      userId = findAllSearchInput.userId;
-    }
+    const userWhereClause = findAllSearchInput.userId ? { id: findAllSearchInput.userId } : { email: findAllSearchInput.email };
 
     return this.prisma.search.findMany({
-      where: { userId },
+      where: { user: userWhereClause },
     });
   }
 
@@ -60,7 +52,7 @@ export class SearchesService {
   }
 
   update(id: string, updateSearchInput: UpdateSearchInput) {
-    return `This action updates a #${id} search`;
+    return `This action updates a #${id} search, with ${updateSearchInput.id}`;
   }
 
   async remove(findOneSearchInput: FindOneSearchInput) {

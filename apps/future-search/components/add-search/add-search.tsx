@@ -2,7 +2,6 @@ import { useMutation, gql } from '@apollo/client';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useState } from 'react';
-import SetUser from '../set-user/set-user';
 import User from '../user/user';
 
 const LOGO_IMAGE = '/random-logo.png';
@@ -65,14 +64,7 @@ const CREATE_SEARCH = gql`
   }
 `;
 
-/* eslint-disable-next-line */
-export interface AddSearchProps {
-  userId?: string;
-  setUserId: (email: string) => void;
-}
-
-export function AddSearch(props: AddSearchProps) {
-  //const { userId, setUserId } = props;
+export function AddSearch() {
   const { data: session } = useSession();
   const userEmail = session?.user?.email;
   const [createSearch, { loading, error }] = useMutation(CREATE_SEARCH, {

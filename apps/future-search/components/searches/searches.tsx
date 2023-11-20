@@ -1,5 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
+import { Search, SearchStatus } from '@prisma/client';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 const GET_USER_SEARCHES = gql`
   query Searches($findAllSearchInput: FindAllSearchInput!) {
@@ -13,13 +15,8 @@ const GET_USER_SEARCHES = gql`
   }
 `;
 
-/* eslint-disable-next-line */
-export interface SearchesProps {
-  userId?: string;
-}
-
-export function Searches(props: SearchesProps) {
-  //const { userId } = props;
+export function Searches() {
+  const [searchStatus, setSearchStatus] = useState<SearchStatus>('NEW');
   const { data: session } = useSession();
   const email = session?.user?.email;
   const { loading, error, data } = useQuery(GET_USER_SEARCHES, {
@@ -35,14 +32,27 @@ export function Searches(props: SearchesProps) {
     return <>Error...</>;
   }
 
-  if (!data) return <>Waiting on data</>;
+  if (!data?.searches) return <>Waiting on data</>;
+
+  const searches = data.searches as Search[];
 
   return (
     <div>
-      <h1>Welcome to Searches!</h1>
-      {data.searches.map((search) => (
+      <h1>Your searches</h1>
+      <select
+        name="searchStatus"
+        id="search-status"
+        value={searchStatus}
+        onChange={e => setSearchStatus(e.target.value as SearchStatus)}
+      >
+        <option value="NEW">New</option>
+        <option value="SUCCESS">Completed</option>
+        <option value="PROCESSING">Processing</option>
+        <option value="ERROR">Error</option>
+      </select>
+      {searches.filter((search) => search.status === searchStatus).map((search) => (
         <div key={search.id}>
-          {search.id} | {search.search} | {search.searchDate}
+          <>{search.status} | {search.search} | {search.searchDate}</>
         </div>
       ))}
     </div>
