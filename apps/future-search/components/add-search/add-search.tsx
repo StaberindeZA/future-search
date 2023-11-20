@@ -29,13 +29,17 @@ function formatDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function formatTime(date: Date = new Date()) {
+  return `${date.toLocaleString('default', { hour12: false, hour: '2-digit'})}:${date.toLocaleString('default', { minute: '2-digit'})}`
+}
+
 function mergeDateTime(dateString: string, time: string) {
   const dateWithTime = new Date(
     parseInt(dateString.slice(0, 4)),
     parseInt(dateString.slice(5, 7)) - 1,
     parseInt(dateString.slice(8, 10)),
-    parseInt(time.slice(0,2)),
-    parseInt(time.slice(3,5))
+    parseInt(time.slice(0, 2)),
+    parseInt(time.slice(3, 5))
   );
   return dateWithTime.toISOString();
 }
@@ -70,15 +74,14 @@ export function AddSearch() {
   const [createSearch, { loading, error }] = useMutation(CREATE_SEARCH, {
     refetchQueries: ['Searches'],
   });
-  const [time, setTime] = useState("12:00");
+  const [time, setTime] = useState(formatTime());
 
   const formItemsDisabled = !userEmail || loading;
-  const initialDate = incDate(1);
+  const initialDate = incDate(0);
 
   return (
     <>
       <Image width={200} height={200} src={LOGO_IMAGE} alt="logo" />
-      {/*<SetUser userId={userId} setUserId={setUserId} />*/}
       <User />
       <form
         className="flex flex-col gap-4 bg-white shadow-md rounded px-8 pt-6 pb-8 md:w-[640px] w-5/6"
@@ -94,6 +97,7 @@ export function AddSearch() {
           });
           form.reset();
         }}
+        onReset={() => setTime(formatTime())}
       >
         <div>
           <label
@@ -107,7 +111,7 @@ export function AddSearch() {
             id="start"
             name="searchDate"
             defaultValue={initialDate}
-            min={incDate(1)}
+            min={incDate(0)}
             disabled={formItemsDisabled}
           />
           <input
@@ -115,7 +119,7 @@ export function AddSearch() {
             id="searchTime"
             name="searchTime"
             value={time}
-            onChange={(e) => setTime(e.target.value) }
+            onChange={(e) => setTime(e.target.value)}
             disabled={formItemsDisabled}
           />
         </div>
