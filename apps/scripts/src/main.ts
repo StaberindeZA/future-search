@@ -90,22 +90,25 @@ program.parse();
 
 const options = program.opts();
 
-email_cron_fetch({
-  status: options['status'],
-  startDate: options['startDate'],
-  endDate: options['endDate'],
-  dryRun: options['dryRun'],
-})
-  .catch(async (err) => {
-    log.error('Script failed with error', {
-      error: err.toString(),
-    });
-    console.error(err);
-    await prisma.$disconnect();
-    process.exit(1);
-  })
-  .then(async (result) => {
-    log.info('Script successfully completed');
-    await prisma.$disconnect();
-    process.exit(result);
-  });
+//TODO - Clean this up properly
+//TODO - Moved this to scripts-lib
+
+//email_cron_fetch({
+//  status: options['status'],
+//  startDate: options['startDate'],
+//  endDate: options['endDate'],
+//  dryRun: options['dryRun'],
+//})
+//  .catch(async (err) => {
+//    log.error('Script failed with error', {
+//      error: err.toString(),
+//    });
+//    console.error(err);
+//    await prisma.$disconnect();
+//    process.exit(1);
+//  })
+//  .then(async (result) => {
+//    log.info('Script successfully completed');
+//    await prisma.$disconnect();
+//    process.exit(result);
+//  });

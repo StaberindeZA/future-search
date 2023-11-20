@@ -2,6 +2,7 @@ import { gql, useQuery } from '@apollo/client';
 import { Search, SearchStatus } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { buildGoogleSearch } from '@future-search/shared';
 
 const GET_USER_SEARCHES = gql`
   query Searches($findAllSearchInput: FindAllSearchInput!) {
@@ -34,10 +35,10 @@ export function Searches() {
 
   if (!data?.searches) return <>Waiting on data</>;
 
-  const searches = data.searches as Search[];
+  const searches = [...data.searches as Search[]];
 
   return (
-    <div>
+    <div className="md:w-[640px] w-5/6">
       <h1>Your searches</h1>
       <select
         name="searchStatus"
@@ -50,11 +51,24 @@ export function Searches() {
         <option value="PROCESSING">Processing</option>
         <option value="ERROR">Error</option>
       </select>
-      {searches.filter((search) => search.status === searchStatus).map((search) => (
-        <div key={search.id}>
-          <>{search.status} | {search.search} | {search.searchDate}</>
-        </div>
-      ))}
+      <table className="table-auto md:w-[640px] w-5/6">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Search Term</th>
+            <th>Scheduled Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {searches.sort((a,b) => new Date(a.searchDate).getTime() - new Date(b.searchDate).getTime()).filter((search) => search.status === searchStatus).map((search) => (
+            <tr key={search.id}>
+              <td>{search.status}</td>
+              <td><a href={buildGoogleSearch(search.search)} target="_blank" rel="noopener noreferrer">{search.search}</a></td>
+              <td>{`${new Date(search.searchDate).toDateString()} at ${new Date(search.searchDate).toLocaleTimeString()}`}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

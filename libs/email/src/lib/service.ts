@@ -1,5 +1,6 @@
 import Logger = require('bunyan');
 import { EmailManager } from './manager';
+import { buildGoogleSearch } from '@future-search/shared';
 
 export class EmailService {
   emailManager: EmailManager;
@@ -18,11 +19,12 @@ export class EmailService {
   }) {
     const { email, searchTerm, searchCreatedDate } = data;
     this.log.debug({ name: 'sendSearchReminderEmail', data });
+    const searchWithLink = `<a href=${buildGoogleSearch(searchTerm)} target="_blank" rel="noopener noreferrer">${searchTerm}</a>`;
     const result = await this.emailManager.sendMail({
       to: email,
       subject: 'Your past You searched for something',
       text: searchTerm,
-      html: `<b><h1>Your Search</h1><p>Search Term: ${searchTerm}</p><p>Search created on: ${searchCreatedDate.toISOString()}</p</b>`,
+      html: `<b><h1>Your Search</h1><p>Search Term: ${searchWithLink}</p><p>Search created on: ${searchCreatedDate.toDateString()} at ${searchCreatedDate.toLocaleTimeString()}</p</b>`,
     });
 
     return !!result
